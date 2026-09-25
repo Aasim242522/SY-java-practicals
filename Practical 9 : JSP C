@@ -1,1 +1,20 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+    String username = request.getParameter("username");
 
+    if (username != null && !username.trim().isEmpty()) {
+        // Store value in implicit session object
+        session.setAttribute("sessionUser", username);
+    }
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Session Variable Set</title>
+</head>
+<body>
+    <h2>Session Variable Stored Successfully!</h2>
+    <p>User Name <strong><%= username %></strong> stored in session.</p>
+    <a href="getSession.jsp">View Session Value</a>
+</body>
+</html>
