@@ -1,0 +1,23 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Session Variable Display</title>
+</head>
+<body>
+    <h2>Session Details</h2>
+    <%
+        String user = (String) session.getAttribute("registeredUser");
+        if (user != null) {
+    %>
+            <p>Welcome! Last registered user in this session: <strong><%= user %></strong></p>
+    <%
+        } else {
+    %>
+            <p>No user registered in the current session.</p>
+    <%
+        }
+    %>
+    <a href="DisplayServlet">View All Records</a>
+</body>
+</html>
