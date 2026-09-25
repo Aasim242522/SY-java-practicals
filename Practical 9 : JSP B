@@ -1,1 +1,40 @@
-
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Stored Cookies</title>
+    <style>
+        table, th, td { border: 1px solid black; border-collapse: collapse; padding: 8px; }
+    </style>
+</head>
+<body>
+    <h2>Stored Client Cookies</h2>
+    <%
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null && cookies.length > 0) {
+    %>
+        <table>
+            <tr>
+                <th>Cookie Name</th>
+                <th>Cookie Value</th>
+            </tr>
+            <%
+                for (Cookie cookie : cookies) {
+            %>
+            <tr>
+                <td><%= cookie.getName() %></td>
+                <td><%= cookie.getValue() %></td>
+            </tr>
+            <%
+                }
+            %>
+        </table>
+    <%
+        } else {
+    %>
+        <p>No cookies found on the client.</p>
+    <%
+        }
+    %>
+</body>
+</html>
