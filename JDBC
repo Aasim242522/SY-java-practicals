@@ -1,1 +1,161 @@
+import java.sql.*;
+import java.util.Scanner;
 
+public class JdbcOperations {
+
+    private static final String URL = "jdbc:mysql://localhost:3306/test_db";
+    private static final String USER = "root";
+    private static final String PASSWORD = "password";
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\n===== JDBC Database Operations =====");
+            System.out.println("1. Display All Records (Read)");
+            System.out.println("2. Fetch Specific Record by ID (Read)");
+            System.out.println("3. Insert New Record (Create)");
+            System.out.println("4. Update Record (Update)");
+            System.out.println("5. Delete Record (Delete)");
+            System.out.println("6. Exit");
+            System.out.print("Choose an option: ");
+
+            int choice = scanner.nextInt();
+            switch (choice) {
+                case 1 -> displayAll();
+                case 2 -> fetchById(scanner);
+                case 3 -> insertRecord(scanner);
+                case 4 -> updateRecord(scanner);
+                case 5 -> deleteRecord(scanner);
+                case 6 -> {
+                    running = false;
+                    System.out.println("Exiting application.");
+                }
+                default -> System.out.println("Invalid choice. Please try again.");
+            }
+        }
+        scanner.close();
+    }
+
+    private static void displayAll() {
+        String query = "SELECT * FROM employees";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            System.out.println("\n--- Employee Records ---");
+            boolean found = false;
+            while (rs.next()) {
+                found = true;
+                System.out.printf("ID: %d | Name: %s | Age: %d | Department: %s%n",
+                        rs.getInt("id"), rs.getString("name"), rs.getInt("age"), rs.getString("department"));
+            }
+            if (!found) System.out.println("No records present in the database.");
+
+        } catch (SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+        }
+    }
+
+    private static void fetchById(Scanner scanner) {
+        System.out.print("Enter Employee ID to fetch: ");
+        int id = scanner.nextInt();
+        String query = "SELECT * FROM employees WHERE id = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    System.out.println("\n--- Record Found ---");
+                    System.out.println("ID: " + rs.getInt("id"));
+                    System.out.println("Name: " + rs.getString("name"));
+                    System.out.println("Age: " + rs.getInt("age"));
+                    System.out.println("Department: " + rs.getString("department"));
+                } else {
+                    System.out.println("No record found with ID " + id);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+        }
+    }
+
+    private static void insertRecord(Scanner scanner) {
+        System.out.print("Enter Employee ID: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Enter Name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter Age: ");
+        int age = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Enter Department: ");
+        String department = scanner.nextLine();
+
+        String query = "INSERT INTO employees (id, name, age, department) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, id);
+            stmt.setString(2, name);
+            stmt.setInt(3, age);
+            stmt.setString(4, department);
+
+            int rows = stmt.executeUpdate();
+            System.out.println(rows + " record(s) inserted successfully.");
+        } catch (SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+        }
+    }
+
+    private static void updateRecord(Scanner scanner) {
+        System.out.print("Enter Employee ID to update: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Enter New Name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter New Age: ");
+        int age = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Enter New Department: ");
+        String department = scanner.nextLine();
+
+        String query = "UPDATE employees SET name = ?, age = ?, department = ? WHERE id = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, name);
+            stmt.setInt(2, age);
+            stmt.setString(3, department);
+            stmt.setInt(4, id);
+
+            int rows = stmt.executeUpdate();
+            System.out.println(rows > 0 ? rows + " record(s) updated successfully." : "No record found with ID " + id);
+        } catch (SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+        }
+    }
+
+    private static void deleteRecord(Scanner scanner) {
+        System.out.print("Enter Employee ID to delete: ");
+        int id = scanner.nextInt();
+
+        String query = "DELETE FROM employees WHERE id = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, id);
+
+            int rows = stmt.executeUpdate();
+            System.out.println(rows > 0 ? rows + " record(s) deleted successfully." : "No record found with ID " + id);
+        } catch (SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+        }
+    }
+}
